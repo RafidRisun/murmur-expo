@@ -36,11 +36,13 @@ export const updateDocument = async (
 	return await updateDoc(doc(db, collectionName, docId), data);
 };
 
-export const getDocument = async (collectionName: string, docId: string) => {
-	const docRef = doc(db, collectionName, docId);
-	const snap = await getDoc(docRef);
+export const getDocument = async <T>(
+	collectionName: string,
+	docId: string
+): Promise<(T & { id: string }) | null> => {
+	const snap = await getDoc(doc(db, collectionName, docId));
 	if (!snap.exists()) return null;
-	return { id: snap.id, ...(snap.data() as any) };
+	return { id: snap.id, ...(snap.data() as T) };
 };
 
 export const getCollectionPaged = async <T>(

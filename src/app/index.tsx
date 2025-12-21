@@ -1,33 +1,26 @@
-import { db } from "@/src/firebase/firebaseConfig";
-import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { useRouter } from "expo-router";
 import { useEffect } from "react";
-import { Text, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
+import tw from "twrnc";
+import { useAuth } from "../context/authContext";
 
-export default function Index() {
+export default function Entry() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   useEffect(() => {
-    const testFirestore = async () => {
-      try {
-        await addDoc(collection(db, "test"), {
-          hello: "firebase",
-          createdAt: serverTimestamp(),
-        });
-        console.log("🔥 Firestore connected successfully");
-      } catch (e) {
-        console.error("❌ Firestore error:", e);
+    const timer = setTimeout(() => {
+      if (isAuthenticated) {
+        router.replace("/(tabs)/home");
+      } else {
+        router.replace("/auth/signin");
       }
-    };
+    }, 2000);
 
-    testFirestore();
+    return () => clearTimeout(timer);
   }, []);
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <Text>Edit app/index.tsx to edit this screen.</Text>
+    <View style={tw`flex-1 justify-center items-center bg-white`}>
+      <ActivityIndicator size="large" color="#0000ff" />
     </View>
   );
 }

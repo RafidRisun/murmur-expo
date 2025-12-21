@@ -7,20 +7,29 @@ import {
   signOutUser,
   signUpWithEmail,
 } from "../services/authService";
+import { getUserById } from "../services/userServices";
 
 interface AuthContextType {
   isAuthenticated: boolean;
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; user?: User; error?: any }>;
+  ) => Promise<{
+    success: boolean;
+    user?: User & { username?: string };
+    error?: any;
+  }>;
   signOut: () => Promise<void>;
   signUp: (
     email: string,
     password: string,
     username: string
-  ) => Promise<{ success: boolean; user?: User; error?: any }>;
-  user: User | null;
+  ) => Promise<{
+    success: boolean;
+    user?: User & { username?: string };
+    error?: any;
+  }>;
+  user: (User & { username?: string }) | null;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -29,13 +38,13 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-
+  const [user, setUser] = useState<(User & { username?: string }) | null>(null);
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (currentUser) => {
       if (currentUser) {
         setIsAuthenticated(true);
-        setUser(currentUser);
+        //setUser(currentUser);
+        updatedUserData(currentUser);
       } else {
         setIsAuthenticated(false);
         setUser(null);
@@ -44,11 +53,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => unsub();
   }, []);
 
+  const updatedUserData = async (currentUser: User) => {
+    const userData = await getUserById(currentUser.uid);
+
+    if (userData) {
+      setUser({
+        ...currentUser,
+        username: userData.username,
+      });
+    } else {
+      setUser(currentUser);
+    }
+  };
+
   const signIn = async (email: string, password: string) => {
     try {
       const user = await signInWithEmail(email, password);
-      setIsAuthenticated(true);
-      setUser(user);
+      // setIsAuthenticated(true);
+      // //setUser(user);
+      // updatedUserData(user);
       return { success: true, user };
     } catch (error) {
       return { success: false, error };

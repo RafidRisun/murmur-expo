@@ -1,6 +1,9 @@
 import { useAuth } from "@/src/context/authContext";
-import React, { useEffect } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { createMurmur } from "@/src/services/murmurmService";
+import { Button, Input } from "@ui-kitten/components";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Alert, View } from "react-native";
+import tw from "twrnc";
 
 export default function Index() {
   const { user, isAuthenticated } = useAuth();
@@ -17,9 +20,35 @@ export default function Index() {
     );
   }
 
+  const [newMurmur, setNewMurmur] = useState("");
+
+  const handlePost = async () => {
+    try {
+      const response = await createMurmur(
+        newMurmur,
+        user?.username || "Anonymous"
+      );
+      setNewMurmur("");
+      if (response) {
+        Alert.alert("Success", "Murmur posted successfully!");
+      }
+    } catch (error) {
+      console.error("Error posting murmur:", error);
+      Alert.alert("Error", "Failed to post murmur. Please try again.");
+    }
+  };
+
   return (
-    <View>
-      <Text>Indexxxxxxxxxxxxx</Text>
+    <View style={tw`flex-1 justify-start items-center bg-black p-4`}>
+      <Input
+        style={tw`w-full`}
+        placeholder="Any new Murmur?"
+        value={newMurmur}
+        onChangeText={setNewMurmur}
+      />
+      <Button style={tw`mt-4 w-full`} onPress={handlePost}>
+        Post Murmur
+      </Button>
     </View>
   );
 }

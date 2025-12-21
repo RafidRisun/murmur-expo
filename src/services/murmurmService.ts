@@ -12,8 +12,8 @@ import {
 const COLLECTION = 'murmurs';
 
 export const createMurmur = async (text: string, username: string) => {
-	const auth = getAuth();
-	const user = auth.currentUser;
+	const user = getAuth().currentUser;
+
 	if (!user) throw new Error('User not authenticated');
 
 	return createDocument(COLLECTION, {
@@ -25,8 +25,7 @@ export const createMurmur = async (text: string, username: string) => {
 };
 
 export const deleteMurmur = async (murmurId: string) => {
-	const auth = getAuth();
-	const user = auth.currentUser;
+	const user = getAuth().currentUser;
 	if (!user) throw new Error('User not authenticated');
 	return deleteDocument(COLLECTION, murmurId);
 };

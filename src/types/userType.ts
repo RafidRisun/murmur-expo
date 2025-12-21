@@ -1,9 +1,11 @@
-import { MurmurType } from "./murmurType";
+// import { MurmurType } from "./murmurType";
 
-export type UserType = {
-    id: string;
-    username: string;
-    email: string;
-    createdAt: any;
-    murmurs: MurmurType[];
-}
+// export type UserType = {
+//     id: string;
+//     username: string;
+//     email: string;
+//     createdAt: any;
+//     murmurs: MurmurType[];
+//     followers: UserType[];
+//     following: UserType[];
+// }

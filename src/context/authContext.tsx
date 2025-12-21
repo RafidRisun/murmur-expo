@@ -13,13 +13,13 @@ interface AuthContextType {
   signIn: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; user: User }>;
+  ) => Promise<{ success: boolean; user?: User; error?: any }>;
   signOut: () => Promise<void>;
   signUp: (
     email: string,
     password: string,
     username: string
-  ) => Promise<{ success: boolean; user: User }>;
+  ) => Promise<{ success: boolean; user?: User; error?: any }>;
   user: User | null;
 }
 
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       return { success: true, user };
     } catch (error) {
-      throw error;
+      return { success: false, error };
     }
   };
 
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const user = await signUpWithEmail(email, password, username);
       return { success: true, user };
     } catch (error) {
-      throw error;
+      return { success: false, error };
     }
   };
 

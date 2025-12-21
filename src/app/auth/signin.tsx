@@ -22,7 +22,10 @@ export default function Signin() {
       Alert.alert("Success", "Signed in successfully!");
       router.replace("/(tabs)/home");
     } else {
-      Alert.alert("Error", "Failed to sign in. Please try again.");
+      Alert.alert(
+        "Error",
+        response.error?.message || "Failed to sign in. Please try again."
+      );
     }
     setIsLoading(false);
   };

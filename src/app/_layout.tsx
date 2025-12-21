@@ -1,26 +1,40 @@
-import { Stack } from "expo-router";
-import { StatusBar } from "expo-status-bar";
+import * as eva from "@eva-design/eva";
+import { ApplicationProvider } from "@ui-kitten/components";
+import { Slot, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { AuthProvider, useAuth } from "../context/authContext";
 
 const InitialLayout = () => {
   const { isAuthenticated } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
   useEffect(() => {
     console.log("Is Authenticated in RootLayout:", isAuthenticated);
+    if (segments[0] === "(tabs)" && !isAuthenticated) {
+      router.replace("/auth/signin");
+    } else if (segments[0] === "auth" && isAuthenticated) {
+      router.replace("/(tabs)/home");
+    }
   }, [isAuthenticated]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Protected guard={!isAuthenticated}>
-        <StatusBar style="dark" />
-        <Stack.Screen name="auth" />
-      </Stack.Protected>
-      <Stack.Protected guard={isAuthenticated}>
-        <Stack.Screen name="(tabs)" />
-      </Stack.Protected>
-      <Stack.Screen name="index" />
-    </Stack>
+    // <Stack screenOptions={{ headerShown: false }}>
+    //   <Stack.Protected guard={!isAuthenticated}>
+    //     <StatusBar style="dark" />
+    //     <Stack.Screen name="auth" />
+    //   </Stack.Protected>
+    //   <Stack.Protected guard={isAuthenticated}>
+    //     <Stack.Screen name="(tabs)" />
+    //   </Stack.Protected>
+    //   <Stack.Screen name="index" />
+    // </Stack>
+    <ApplicationProvider {...eva} theme={eva.dark}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <Slot />
+      </SafeAreaView>
+    </ApplicationProvider>
   );
 };
 

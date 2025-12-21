@@ -1,17 +1,15 @@
 import {
 	createUserWithEmailAndPassword,
-	getAuth,
 	signInWithEmailAndPassword,
 } from 'firebase/auth';
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { db } from '../firebase/firebaseConfig';
+import { auth, db } from '../firebase/firebaseConfig';
 
 export const signUpWithEmail = async (
 	email: string,
 	password: string,
 	username: string
 ) => {
-	const auth = getAuth();
 	try {
 		const userCredential = await createUserWithEmailAndPassword(
 			auth,
@@ -20,6 +18,7 @@ export const signUpWithEmail = async (
 		);
 		const user = userCredential.user;
 		await setDoc(doc(db, 'users', user.uid), {
+			userId: user.uid,
 			email: user.email,
 			username: username,
 			followingCount: 0,
@@ -33,7 +32,6 @@ export const signUpWithEmail = async (
 };
 
 export const signInWithEmail = async (email: string, password: string) => {
-	const auth = getAuth();
 	try {
 		const userCredential = await signInWithEmailAndPassword(
 			auth,
@@ -41,6 +39,14 @@ export const signInWithEmail = async (email: string, password: string) => {
 			password
 		);
 		return userCredential.user;
+	} catch (error) {
+		throw error;
+	}
+};
+
+export const signOutUser = async () => {
+	try {
+		await auth.signOut();
 	} catch (error) {
 		throw error;
 	}

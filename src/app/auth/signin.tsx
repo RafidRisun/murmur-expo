@@ -1,18 +1,30 @@
+import { useAuth } from "@/src/context/authContext";
 import { Button, Input } from "@ui-kitten/components";
 import { Link, useRouter } from "expo-router";
 import { Formik } from "formik";
-import React from "react";
+import React, { useState } from "react";
 import { Alert, Text, View } from "react-native";
 import tw from "twrnc";
 
 export default function Signin() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const signIn = useAuth().signIn;
 
-  const Login = (email: string, password: string) => {
+  const Login = async (email: string, password: string) => {
     if (email === "" || password === "") {
       Alert.alert("Sign In Error ", "Please fill in all fields");
       return;
     }
+    setIsLoading(true);
+    let response = await signIn(email, password);
+    if (response && response.success) {
+      Alert.alert("Success", "Signed in successfully!");
+      router.replace("/(tabs)/home");
+    } else {
+      Alert.alert("Error", "Failed to sign in. Please try again.");
+    }
+    setIsLoading(false);
   };
 
   return (

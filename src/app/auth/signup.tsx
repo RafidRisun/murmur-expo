@@ -1,18 +1,34 @@
+import { useAuth } from "@/src/context/authContext";
 import { Button, Input } from "@ui-kitten/components";
 import { Link, useRouter } from "expo-router";
 import { Formik } from "formik";
-import React from "react";
-import { Alert, Text, View } from "react-native";
+import React, { useState } from "react";
+import { ActivityIndicator, Alert, Text, View } from "react-native";
 import tw from "twrnc";
 
 export default function SignUp() {
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const signUp = useAuth().signUp;
 
-  const Register = (email: string, password: string, username: string) => {
+  const Register = async (
+    email: string,
+    password: string,
+    username: string
+  ) => {
     if (email === "" || password === "" || username === "") {
       Alert.alert("Sign Up Error ", "Please fill in all fields");
       return;
     }
+    setIsLoading(true);
+    let response = await signUp(email, password, username);
+    if (response) {
+      Alert.alert("Success", "Account created successfully!");
+      //router.replace("/auth/signin");
+    } else {
+      Alert.alert("Error", "Failed to create account. Please try again.");
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -45,7 +61,11 @@ export default function SignUp() {
               onBlur={handleBlur("password")}
               secureTextEntry
             />
-            <Button onPress={(event) => handleSubmit()}>Sign Up</Button>
+            {isLoading ? (
+              <ActivityIndicator size="large" color="#0000ff" />
+            ) : (
+              <Button onPress={(event) => handleSubmit()}>Sign Up</Button>
+            )}
           </View>
         )}
       </Formik>

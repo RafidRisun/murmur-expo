@@ -1,11 +1,26 @@
-import { createContext, useContext, useState } from "react";
+import type { User } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+import { auth } from "../firebase/firebaseConfig";
+import {
+  signInWithEmail,
+  signOutUser,
+  signUpWithEmail,
+} from "../services/authService";
 
 interface AuthContextType {
   isAuthenticated: boolean;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (
+    email: string,
+    password: string
+  ) => Promise<{ success: boolean; user: User }>;
   signOut: () => Promise<void>;
-  signUp: (email: string, password: string, username: string) => Promise<void>;
-  user: any | null;
+  signUp: (
+    email: string,
+    password: string,
+    username: string
+  ) => Promise<{ success: boolean; user: User }>;
+  user: User | null;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -14,23 +29,49 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<any | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setIsAuthenticated(true);
+        setUser(currentUser);
+      } else {
+        setIsAuthenticated(false);
+        setUser(null);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
-    // Implement sign-in logic here
-    setIsAuthenticated(true);
-    setUser({ email });
+    try {
+      const user = await signInWithEmail(email, password);
+      setIsAuthenticated(true);
+      setUser(user);
+      return { success: true, user };
+    } catch (error) {
+      throw error;
+    }
   };
 
   const signOut = async () => {
-    // Implement sign-out logic here
-    setIsAuthenticated(false);
-    setUser(null);
+    try {
+      await signOutUser();
+      setIsAuthenticated(false);
+      setUser(null);
+    } catch (error) {
+      throw error;
+    }
   };
+
   const signUp = async (email: string, password: string, username: string) => {
-    // Implement sign-up logic here
-    setIsAuthenticated(true);
-    setUser({ email, username });
+    try {
+      const user = await signUpWithEmail(email, password, username);
+      return { success: true, user };
+    } catch (error) {
+      throw error;
+    }
   };
 
   return (

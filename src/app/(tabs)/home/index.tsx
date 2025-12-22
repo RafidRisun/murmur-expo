@@ -1,5 +1,9 @@
 import { useAuth } from '@/src/context/authContext';
-import { followUser } from '@/src/services/followService';
+import {
+	followUser,
+	getFollowingIdsForUser,
+	unfollowUser,
+} from '@/src/services/followService';
 import { createMurmur, getAllMurmurs } from '@/src/services/murmurmService';
 import { getAllUsers } from '@/src/services/userServices';
 import { MurmurType } from '@/src/types/murmurType';
@@ -9,7 +13,9 @@ import React, { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Alert,
+	FlatList,
 	Keyboard,
+	ScrollView,
 	Text,
 	TouchableWithoutFeedback,
 	View,
@@ -21,6 +27,7 @@ export default function Index() {
 	const [newMurmur, setNewMurmur] = useState('');
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [murmurs, setMurmurs] = useState<MurmurType[]>([]);
+	const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
 
 	useEffect(() => {
 		console.log('User in home index:', user);
@@ -39,6 +46,19 @@ export default function Index() {
 
 		fetchUsers();
 	}, []);
+
+	useEffect(() => {
+		const fetchFollowing = async () => {
+			if (!user?.uid) return;
+			try {
+				const ids = await getFollowingIdsForUser(user.uid);
+				setFollowingIds(new Set(ids));
+			} catch (e) {
+				console.error('Error fetching following list:', e);
+			}
+		};
+		fetchFollowing();
+	}, [user?.uid]);
 
 	useEffect(() => {
 		const fetchMurmurs = async () => {
@@ -78,58 +98,84 @@ export default function Index() {
 	};
 
 	const handleFollow = async (id: string) => {
+		if (!user?.uid || user.uid === id) return;
 		await followUser(user.uid, id);
+		setFollowingIds(prev => new Set([...prev, id]));
+	};
+
+	const handleUnfollow = async (id: string) => {
+		if (!user?.uid || user.uid === id) return;
+		await unfollowUser(user.uid, id);
+		setFollowingIds(prev => {
+			const updated = new Set(prev);
+			updated.delete(id);
+			return updated;
+		});
 	};
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-			<View style={tw`flex-1 justify-start items-center bg-black p-4`}>
-				<Input
-					style={tw`w-full`}
-					placeholder="Any new Murmur?"
-					value={newMurmur}
-					onChangeText={setNewMurmur}
-				/>
-				<Button style={tw`mt-4 w-full`} onPress={handlePost}>
-					Post Murmur
-				</Button>
-				<View style={tw`flex flex-col items-start mt-6 w-full`}>
-					{users.map(usr => (
-						<View
-							key={usr.id}
-							style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
-						>
-							<View style={tw`flex-row justify-between items-center`}>
+			<ScrollView style={tw`flex-1 bg-black`}>
+				<View style={tw`flex flex-col justify-start items-center p-4`}>
+					<Input
+						style={tw`w-full`}
+						placeholder="Any new Murmur?"
+						value={newMurmur}
+						onChangeText={setNewMurmur}
+					/>
+					<Button style={tw`mt-4 w-full`} onPress={handlePost}>
+						Post Murmur
+					</Button>
+					<FlatList
+						data={users}
+						keyExtractor={item => item.id}
+						contentContainerStyle={{ gap: 16 }}
+						renderItem={({ item }) => (
+							<View
+								key={item.id}
+								style={tw`p-4 border border-gray-700 rounded w-40 h-35 flex flex-col items-center justify-between`}
+							>
 								<Text style={tw`text-white text-lg font-bold`}>
-									{usr.username}
+									{item.username}
 								</Text>
-								<Text style={tw`text-gray-400`}>{usr.email}</Text>
+								{user?.uid === item.id ? null : followingIds.has(item.id) ? (
+									<Button
+										style={tw`mt-2`}
+										onPress={() => handleUnfollow(item.id)}
+									>
+										Unfollow
+									</Button>
+								) : (
+									<Button
+										style={tw`mt-2`}
+										onPress={() => handleFollow(item.id)}
+									>
+										Follow
+									</Button>
+								)}
 							</View>
-							<Text style={tw`text-gray-400 mt-2`}>
-								Followers: {usr.followerCount} | Following: {usr.followingCount}
-							</Text>
-							<Button style={tw`mt-2`} onPress={() => handleFollow(usr.id)}>
-								Follow
-							</Button>
-						</View>
-					))}
+						)}
+						horizontal
+						showsHorizontalScrollIndicator={false}
+						style={tw`flex w-full mt-6`}
+					/>
+					<View style={tw`flex flex-col items-start mt-6 w-full`}>
+						{murmurs.map(murmur => (
+							<View
+								key={murmur.id}
+								style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
+							>
+								<Text style={tw`text-white text-lg font-bold`}>
+									{murmur.username}
+								</Text>
+								<Text style={tw`text-white text-lg font-bold`}>
+									{murmur.text}
+								</Text>
+							</View>
+						))}
+					</View>
 				</View>
-				<View style={tw`flex flex-col items-start mt-6 w-full`}>
-					{murmurs.map(murmur => (
-						<View
-							key={murmur.id}
-							style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
-						>
-							<Text style={tw`text-white text-lg font-bold`}>
-								{murmur.username}
-							</Text>
-							<Text style={tw`text-white text-lg font-bold`}>
-								{murmur.text}
-							</Text>
-						</View>
-					))}
-				</View>
-			</View>
+			</ScrollView>
 		</TouchableWithoutFeedback>
 	);
 }

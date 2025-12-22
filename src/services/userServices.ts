@@ -29,3 +29,14 @@ export const incrementFollowingCount = async (userId: string) => {
 		followingCount: increment(1),
 	});
 };
+
+export const decrementFollowerCount = async (userId: string) => {
+	return updateDocument(COLLECTION, userId, {
+		followerCount: increment(-1),
+	});
+};
+export const decrementFollowingCount = async (userId: string) => {
+	return updateDocument(COLLECTION, userId, {
+		followingCount: increment(-1),
+	});
+};

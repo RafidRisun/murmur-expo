@@ -1,4 +1,4 @@
-import { collection, getDocs, increment } from 'firebase/firestore';
+import { collection, getDocs, increment, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { UserType } from '../types/userType';
 import { getDocument, updateDocument } from './firebaseService';
@@ -9,8 +9,12 @@ export const getUserById = async (userId: string) => {
 	return getDocument<UserType>(COLLECTION, userId);
 };
 
-export const getAllUsers = async (): Promise<UserType[]> => {
-	const snapShot = await getDocs(collection(db, COLLECTION));
+export const getAllUsers = async (currentUserId: string): Promise<UserType[]> => {
+	const q = query(
+		collection(db, COLLECTION),
+		where('userId', '!=', currentUserId)
+	);
+	const snapShot = await getDocs(q);
 
 	return snapShot.docs.map(doc => ({
 		id: doc.id,

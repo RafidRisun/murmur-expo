@@ -25,7 +25,7 @@ export const signUpWithEmail = async (
 			email: user.email,
 			username: username,
 			followingCount: 0,
-			followersCount: 0,
+			followerCount: 0,
 			createdAt: serverTimestamp(),
 		});
 		return user;

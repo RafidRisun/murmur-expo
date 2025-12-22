@@ -1,7 +1,7 @@
 import { getAuth } from '@firebase/auth';
 import { MurmurType } from './../types/murmurType';
 
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import {
 	createDocument,
@@ -44,6 +44,17 @@ export const getMurmurByUser = async (
 	return getCollectionPaged<MurmurType>(COLLECTION, pageSize, lastDoc, [
 		{ field: 'userId', op: '==', value: userId },
 	]);
+};
+
+export const getMurmurByUserId = async (
+	userId: string
+): Promise<MurmurType[]> => {
+	const q = query(collection(db, COLLECTION), where('userId', '==', userId));
+	const snapShot = await getDocs(q);
+	return snapShot.docs.map(doc => ({
+		id: doc.id,
+		...(doc.data() as Omit<MurmurType, 'id'>),
+	}));
 };
 
 export const getMurmurById = async (murmurId: string) => {

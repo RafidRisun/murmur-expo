@@ -1,4 +1,5 @@
 import { useAuth } from '@/src/context/authContext';
+import { followUser } from '@/src/services/followService';
 import { createMurmur, getAllMurmurs } from '@/src/services/murmurmService';
 import { getAllUsers } from '@/src/services/userServices';
 import { MurmurType } from '@/src/types/murmurType';
@@ -24,7 +25,7 @@ export default function Index() {
 	useEffect(() => {
 		console.log('User in home index:', user);
 		console.log('Is Authenticated in home index:', isAuthenticated);
-	}, [user]);
+	}, [user, isAuthenticated]);
 
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -76,6 +77,10 @@ export default function Index() {
 		}
 	};
 
+	const handleFollow = async (id: string) => {
+		await followUser(user.uid, id);
+	};
+
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
 			<View style={tw`flex-1 justify-start items-center bg-black p-4`}>
@@ -103,6 +108,9 @@ export default function Index() {
 							<Text style={tw`text-gray-400 mt-2`}>
 								Followers: {usr.followerCount} | Following: {usr.followingCount}
 							</Text>
+							<Button style={tw`mt-2`} onPress={() => handleFollow(usr.id)}>
+								Follow
+							</Button>
 						</View>
 					))}
 				</View>

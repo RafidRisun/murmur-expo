@@ -1,7 +1,7 @@
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, increment } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { UserType } from '../types/userType';
-import { getDocument } from './firebaseService';
+import { getDocument, updateDocument } from './firebaseService';
 
 const COLLECTION = 'users';
 
@@ -16,4 +16,16 @@ export const getAllUsers = async (): Promise<UserType[]> => {
 		id: doc.id,
 		...(doc.data() as Omit<UserType, 'id'>),
 	}));
+};
+
+export const incrementFollowerCount = async (userId: string) => {
+	return updateDocument(COLLECTION, userId, {
+		followerCount: increment(1),
+	});
+};
+
+export const incrementFollowingCount = async (userId: string) => {
+	return updateDocument(COLLECTION, userId, {
+		followingCount: increment(1),
+	});
 };

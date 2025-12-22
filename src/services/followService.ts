@@ -2,12 +2,16 @@ import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import { FollowType } from '../types/followType';
 import { createDocument, deleteDocument } from './firebaseService';
+import {
+	incrementFollowerCount,
+	incrementFollowingCount,
+} from './userServices';
 
 const COLLECTION = 'follows';
 
 export const followUser = async (followerId: string, followingId: string) => {
 	const q = query(
-		collection(db, COLLECTION),
+		collection(db, 'follows'),
 		where('followerId', '==', followerId),
 		where('followingId', '==', followingId)
 	);
@@ -15,7 +19,10 @@ export const followUser = async (followerId: string, followingId: string) => {
 	const snap = await getDocs(q);
 	if (!snap.empty) return;
 
-	return createDocument(COLLECTION, { followerId, followingId });
+	await createDocument('follows', { followerId, followingId });
+	await incrementFollowerCount(followingId);
+	await incrementFollowingCount(followerId);
+	return;
 };
 
 export const unfollowUser = async (followId: string) => {

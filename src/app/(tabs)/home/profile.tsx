@@ -1,3 +1,4 @@
+import MurmurCard from '@/src/components/MurmurCard';
 import { getMurmurByUserId } from '@/src/services/murmurmService';
 import { getUserById } from '@/src/services/userServices';
 import { MurmurType } from '@/src/types/murmurType';
@@ -91,17 +92,7 @@ export default function Profile() {
 						<Text style={tw`text-white`}>No murmurs to display.</Text>
 					) : (
 						murmurs.map(murmur => (
-							<View
-								key={murmur.id}
-								style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
-							>
-								<Text style={tw`text-white text-lg font-bold`}>
-									{murmur.username}
-								</Text>
-								<Text style={tw`text-white text-lg font-bold`}>
-									{murmur.text}
-								</Text>
-							</View>
+							<MurmurCard key={murmur.id} murmur={murmur} />
 						))
 					)}
 				</View>

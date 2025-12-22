@@ -9,12 +9,14 @@ import { getAllUsers } from '@/src/services/userServices';
 import { MurmurType } from '@/src/types/murmurType';
 import { UserType } from '@/src/types/userType';
 import { Button, Input } from '@ui-kitten/components';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Alert,
 	FlatList,
 	Keyboard,
+	Pressable,
 	ScrollView,
 	Text,
 	TouchableWithoutFeedback,
@@ -28,6 +30,8 @@ export default function Index() {
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [murmurs, setMurmurs] = useState<MurmurType[]>([]);
 	const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+
+	const router = useRouter();
 
 	useEffect(() => {
 		console.log('User in home index:', user);
@@ -65,6 +69,7 @@ export default function Index() {
 			try {
 				const allMurmurs = await getAllMurmurs();
 				setMurmurs(allMurmurs);
+				console.log('Fetched murmurs:', murmurs);
 			} catch (error) {
 				console.error('Error fetching murmurs:', error);
 			}
@@ -131,9 +136,15 @@ export default function Index() {
 						keyExtractor={item => item.id}
 						contentContainerStyle={{ gap: 16 }}
 						renderItem={({ item }) => (
-							<View
+							<Pressable
 								key={item.id}
 								style={tw`p-4 border border-gray-700 rounded w-40 h-35 flex flex-col items-center justify-between`}
+								onPress={() => {
+									router.push({
+										pathname: '/(tabs)/home/profile',
+										params: { userId: item.id },
+									});
+								}}
 							>
 								<Text style={tw`text-white text-lg font-bold`}>
 									{item.username}
@@ -153,26 +164,31 @@ export default function Index() {
 										Follow
 									</Button>
 								)}
-							</View>
+							</Pressable>
 						)}
 						horizontal
 						showsHorizontalScrollIndicator={false}
 						style={tw`flex w-full mt-6`}
 					/>
 					<View style={tw`flex flex-col items-start mt-6 w-full`}>
-						{murmurs.map(murmur => (
-							<View
-								key={murmur.id}
-								style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
-							>
-								<Text style={tw`text-white text-lg font-bold`}>
-									{murmur.username}
-								</Text>
-								<Text style={tw`text-white text-lg font-bold`}>
-									{murmur.text}
-								</Text>
-							</View>
-						))}
+						{murmurs
+							.filter(
+								murmur =>
+									followingIds.has(murmur.userId) || murmur.userId === user?.uid
+							)
+							.map(murmur => (
+								<View
+									key={murmur.id}
+									style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
+								>
+									<Text style={tw`text-white text-lg font-bold`}>
+										{murmur.username}
+									</Text>
+									<Text style={tw`text-white text-lg font-bold`}>
+										{murmur.text}
+									</Text>
+								</View>
+							))}
 					</View>
 				</View>
 			</ScrollView>

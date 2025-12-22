@@ -1,6 +1,8 @@
 import { getAuth } from '@firebase/auth';
 import { MurmurType } from './../types/murmurType';
 
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/firebaseConfig';
 import {
 	createDocument,
 	deleteDocument,
@@ -55,4 +57,12 @@ export const likeMurmur = async (murmurId: string) => {
 	return updateDocument(COLLECTION, murmurId, {
 		likesCount: murmur.likesCount + 1,
 	});
+};
+
+export const getAllMurmurs = async (): Promise<MurmurType[]> => {
+	const snapShot = await getDocs(collection(db, COLLECTION));
+	return snapShot.docs.map(doc => ({
+		id: doc.id,
+		...(doc.data() as Omit<MurmurType, 'id'>),
+	}));
 };

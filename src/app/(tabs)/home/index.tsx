@@ -1,3 +1,5 @@
+import Users from '@/src/components/home/Users';
+import MurmurCard from '@/src/components/MurmurCard';
 import { useAuth } from '@/src/context/authContext';
 import {
 	followUser,
@@ -10,15 +12,13 @@ import { MurmurType } from '@/src/types/murmurType';
 import { UserType } from '@/src/types/userType';
 import { Button, Input } from '@ui-kitten/components';
 import { useRouter } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
 	ActivityIndicator,
 	Alert,
-	FlatList,
 	Keyboard,
-	Pressable,
+	RefreshControl,
 	ScrollView,
-	Text,
 	TouchableWithoutFeedback,
 	View,
 } from 'react-native';
@@ -30,6 +30,14 @@ export default function Index() {
 	const [users, setUsers] = useState<UserType[]>([]);
 	const [murmurs, setMurmurs] = useState<MurmurType[]>([]);
 	const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+	const [refreshing, setRefreshing] = useState(false);
+
+	const onRefresh = useCallback(() => {
+		setRefreshing(true);
+		setTimeout(() => {
+			setRefreshing(false);
+		}, 2000);
+	}, []);
 
 	const router = useRouter();
 
@@ -80,7 +88,14 @@ export default function Index() {
 
 	if (user === null) {
 		return (
-			<View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+			<View
+				style={{
+					flex: 1,
+					justifyContent: 'center',
+					alignItems: 'center',
+					backgroundColor: 'black',
+				}}
+			>
 				<ActivityIndicator size="large" color="#0000ff" />
 			</View>
 		);
@@ -120,7 +135,12 @@ export default function Index() {
 
 	return (
 		<TouchableWithoutFeedback onPress={Keyboard.dismiss} style={{ flex: 1 }}>
-			<ScrollView style={tw`flex-1 bg-black`}>
+			<ScrollView
+				style={tw`flex-1 bg-black`}
+				refreshControl={
+					<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+				}
+			>
 				<View style={tw`flex flex-col justify-start items-center p-4`}>
 					<Input
 						style={tw`w-full`}
@@ -131,7 +151,7 @@ export default function Index() {
 					<Button style={tw`mt-4 w-full`} onPress={handlePost}>
 						Post Murmur
 					</Button>
-					<FlatList
+					{/* <FlatList
 						data={users}
 						keyExtractor={item => item.id}
 						contentContainerStyle={{ gap: 16 }}
@@ -169,6 +189,13 @@ export default function Index() {
 						horizontal
 						showsHorizontalScrollIndicator={false}
 						style={tw`flex w-full mt-6`}
+					/> */}
+					<Users
+						users={users}
+						followingIds={followingIds}
+						handleFollow={handleFollow}
+						handleUnfollow={handleUnfollow}
+						user={user}
 					/>
 					<View style={tw`flex flex-col items-start mt-6 w-full`}>
 						{murmurs
@@ -177,17 +204,7 @@ export default function Index() {
 									followingIds.has(murmur.userId) || murmur.userId === user?.uid
 							)
 							.map(murmur => (
-								<View
-									key={murmur.id}
-									style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
-								>
-									<Text style={tw`text-white text-lg font-bold`}>
-										{murmur.username}
-									</Text>
-									<Text style={tw`text-white text-lg font-bold`}>
-										{murmur.text}
-									</Text>
-								</View>
+								<MurmurCard key={murmur.id} murmur={murmur} />
 							))}
 					</View>
 				</View>

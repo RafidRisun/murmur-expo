@@ -55,6 +55,7 @@ Open on emulator, simulator, or Expo Go from the dev server UI.
 
 ## Extending the project
 
+- Check if user already liked a post. If liked then unlike should replace the button.
 - Improve feed accuracy by implementing server-side feed generation (Cloud Functions) or Firestore `in` queries limited to 10 ids.
 - Integrate React Query for caching and background refetching.
 

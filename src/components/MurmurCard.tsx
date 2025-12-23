@@ -77,10 +77,7 @@ export default function MurmurCard({
 					{murmur.username}&apos;s Murmur
 				</Text>
 			</TouchableOpacity>
-			<Text style={tw`text-white text-lg font-normal`}>
-				{'	'}
-				{murmur.text}
-			</Text>
+			<Text style={tw`text-white text-lg font-normal pl-2`}>{murmur.text}</Text>
 			<View style={tw`flex flex-row justify-between mt-4`}>
 				<Text style={tw`text-gray-400 text-sm`}>
 					{localMurmur.likesCount || 0} Likes

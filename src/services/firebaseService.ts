@@ -18,10 +18,12 @@ import {
 import { db } from '../firebase/firebaseConfig';
 
 export const createDocument = async (collectionName: string, data: any) => {
-	return addDoc(collection(db, collectionName), {
+	const ref = await addDoc(collection(db, collectionName), {
 		...data,
 		createdAt: serverTimestamp(),
 	});
+	const snap = await getDoc(ref);
+	return { id: ref.id, ...(snap.data() as any) };
 };
 
 export const deleteDocument = async (collectionName: string, docId: string) => {

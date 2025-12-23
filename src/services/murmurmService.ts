@@ -1,7 +1,16 @@
 import { getAuth } from '@firebase/auth';
 import { MurmurType } from './../types/murmurType';
 
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import {
+	collection,
+	DocumentSnapshot,
+	getDocs,
+	limit,
+	orderBy,
+	query,
+	startAfter,
+	where,
+} from 'firebase/firestore';
 import { db } from '../firebase/firebaseConfig';
 import {
 	createDocument,
@@ -30,10 +39,6 @@ export const deleteMurmur = async (murmurId: string) => {
 	const user = getAuth().currentUser;
 	if (!user) throw new Error('User not authenticated');
 	return deleteDocument(COLLECTION, murmurId);
-};
-
-export const getTimelinePaginated = async (pageSize = 10, lastDoc?: any) => {
-	return getCollectionPaged<MurmurType>(COLLECTION, pageSize, lastDoc);
 };
 
 export const getMurmurByUser = async (
@@ -76,4 +81,41 @@ export const getAllMurmurs = async (): Promise<MurmurType[]> => {
 		id: doc.id,
 		...(doc.data() as Omit<MurmurType, 'id'>),
 	}));
+};
+
+export const getMurmursPaged = async (
+	pageSize = 10,
+	lastDoc?: DocumentSnapshot
+): Promise<{
+	murmurs: MurmurType[];
+	lastDoc: DocumentSnapshot | null;
+}> => {
+	let q;
+
+	if (lastDoc) {
+		q = query(
+			collection(db, COLLECTION),
+			orderBy('createdAt', 'desc'),
+			startAfter(lastDoc),
+			limit(pageSize)
+		);
+	} else {
+		q = query(
+			collection(db, COLLECTION),
+			orderBy('createdAt', 'desc'),
+			limit(pageSize)
+		);
+	}
+
+	const snap = await getDocs(q);
+
+	const murmurs = snap.docs.map(doc => ({
+		id: doc.id,
+		...(doc.data() as Omit<MurmurType, 'id'>),
+	}));
+
+	return {
+		murmurs,
+		lastDoc: snap.docs.length > 0 ? snap.docs[snap.docs.length - 1] : null,
+	};
 };

@@ -1,51 +1,64 @@
-# Welcome to your Expo app 👋
+# Murmur (Expo)
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Murmur is a small social/timeline mobile app built with Expo and Firebase. It implements basic features from the interview task: posting murmurs (like tweets), following users, liking murmurs, deleting your own murmurs, pagination, and profile screens.
 
-## Get started
+## Tech stack
+
+- React Native (Expo)
+- Firebase (Auth + Firestore) as BaaS
+- TypeScript
+
+## Quick start
 
 1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+```bash
+npm install
+```
 
 2. Start the app
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
 ```bash
-npm run reset-project
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Open on emulator, simulator, or Expo Go from the dev server UI.
 
-## Learn more
+## Implemented features
 
-To learn more about developing your project with Expo, look at the following resources:
+- Timeline with paginated murmurs (10 per page) and infinite scroll.
+- Post a murmur and immediate UI update (new murmur prepended).
+- Like a murmur (updates count in Firestore).
+- Follow / unfollow users and show followed users' murmurs in timeline.
+- Delete your own murmurs (owner-only button).
+- Profile screens for own and other users with their murmurs.
+- Authentication via Firebase (email/password).
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## How to test (manual)
 
-## Join the community
+- Timeline: open Home tab — scroll to load more. The app requests 10 items per page.
+- Post: type text in the home input, press `Post Murmur` — the new murmur is prepended.
+- Like: tap the heart icon on a murmur — the count updates locally and in Firestore.
+- Delete: on your own murmur, use the trash icon to delete (it will be removed from UI).
+- Profile: open a user's profile to see their murmurs and follow counts.
 
-Join our community of developers creating universal apps.
+## Key files
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-"# murmur-expo" 
+- Timeline / home: [src/app/(tabs)/home/index.tsx](<src/app/(tabs)/home/index.tsx>)
+- Murmur services / paging: [src/services/murmurmService.ts](src/services/murmurmService.ts)
+- Firebase helpers: [src/services/firebaseService.ts](src/services/firebaseService.ts)
+- Follow / user services: [src/services/followService.ts](src/services/followService.ts), [src/services/userServices.ts](src/services/userServices.ts)
+- Murmur UI card: [src/components/MurmurCard.tsx](src/components/MurmurCard.tsx)
+- Users horizontal list: [src/components/home/Users.tsx](src/components/home/Users.tsx)
+- Profile UI: [src/components/profile/ProfileComponent.tsx](src/components/profile/ProfileComponent.tsx)
+- Auth: [src/services/authService.ts](src/services/authService.ts), [src/context/authContext.tsx](src/context/authContext.tsx)
+
+## Extending the project
+
+- Check if user already liked a post. If liked then unlike should replace the button.
+- Improve feed accuracy by implementing server-side feed generation (Cloud Functions) or Firestore `in` queries limited to 10 ids.
+- Integrate React Query for caching and background refetching.
+
+## Contact / Notes for reviewers
+
+If you need any clarification about implementation choices or want me to implement any of the suggested improvements (server-side filtering, Murmur detail screen, or React Query), tell me which and I'll add it.

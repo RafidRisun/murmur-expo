@@ -42,11 +42,6 @@ Open on emulator, simulator, or Expo Go from the dev server UI.
 - Delete: on your own murmur, use the trash icon to delete (it will be removed from UI).
 - Profile: open a user's profile to see their murmurs and follow counts.
 
-## Important notes & known caveats
-
-- Pagination vs client-side filtering: the app fetches global pages from Firestore and filters client-side to show only followed users' murmurs. If many items in a page are from non-followed users, the visible timeline may appear sparse. For production, consider server-side filtering (Firestore `in` queries or a feed collection) or an auto-fetch loop to ensure enough visible items.
-- Header flicker: avoid using `flex-1` inside `ListHeaderComponent` to prevent layout glitches (fix already applied in `src/components/profile/ProfileComponent.tsx`).
-
 ## Key files
 
 - Timeline / home: [src/app/(tabs)/home/index.tsx](<src/app/(tabs)/home/index.tsx>)

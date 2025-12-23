@@ -59,10 +59,12 @@ export default function Profile() {
 
 	useEffect(() => {
 		const fetchUserMurmurs = async () => {
+			setLoading(true);
 			if (!userId || typeof userId !== 'string') return;
 			try {
 				const userMurmurs = await getMurmurByUserId(userId);
 				setMurmurs(userMurmurs);
+				setLoading(false);
 			} catch (error) {
 				console.error('Error fetching user murmurs:', error);
 			}

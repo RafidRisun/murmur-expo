@@ -1,7 +1,7 @@
 import { FontAwesome } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Pressable, Text, TouchableOpacity, View } from 'react-native';
 import tw from 'twrnc';
 import { useAuth } from '../context/authContext';
 import { deleteMurmur, likeMurmur } from '../services/murmurmService';
@@ -43,9 +43,15 @@ export default function MurmurCard({
 	};
 
 	return (
-		<View
+		<Pressable
 			key={murmur.id}
 			style={tw`mb-4 p-4 border border-gray-700 rounded w-full`}
+			onPress={() =>
+				router.push({
+					pathname: '/murmurDetails',
+					params: { id: murmur.id },
+				})
+			}
 		>
 			{user?.uid === murmur.userId && (
 				<TouchableOpacity
@@ -83,6 +89,6 @@ export default function MurmurCard({
 					<FontAwesome name="heart" size={20} color="#ffffff" />
 				</TouchableOpacity>
 			</View>
-		</View>
+		</Pressable>
 	);
 }

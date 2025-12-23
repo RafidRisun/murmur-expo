@@ -22,7 +22,7 @@ export default function ProfileComponent({
 	followingCount: number;
 }) {
 	const headerComponent = (
-		<View style={tw`flex-1 bg-black justify-start items-center mb-4`}>
+		<View style={tw`bg-black justify-start items-center mb-4`}>
 			<Text style={tw`text-white text-2xl font-bold mb-4`}>{userName}</Text>
 			<View style={tw`flex flex-row items-center gap-4`}>
 				<Text style={tw`text-white text-lg`}>Followers: {followerCount}</Text>

@@ -4,9 +4,9 @@ import { signOutUser } from '@/src/services/authService';
 import { getMurmurByUserId } from '@/src/services/murmurmService';
 import { getUserById } from '@/src/services/userServices';
 import { MurmurType } from '@/src/types/murmurType';
-import { Button } from '@ui-kitten/components';
+import { FontAwesome } from '@expo/vector-icons';
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Text, TouchableOpacity, View } from 'react-native';
 import tw from 'twrnc';
 
 export default function Profile() {
@@ -92,8 +92,12 @@ export default function Profile() {
 
 	return (
 		<View style={tw`flex-1 bg-black`}>
-			<TouchableOpacity style={tw`absolute top-0 right-4 z-10`}>
-				<Button onPress={signOutUser}>Log Out</Button>
+			<TouchableOpacity
+				style={tw`absolute top-4 right-4 z-10 flex flex-row items-center gap-2`}
+				onPress={signOutUser}
+			>
+				<FontAwesome name="sign-out" size={24} color="#ffffff" />
+				<Text style={tw`text-white`}>Log Out</Text>
 			</TouchableOpacity>
 			<ProfileComponent
 				murmurs={murmurs}

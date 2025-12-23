@@ -3,26 +3,27 @@ import { router, Stack } from 'expo-router';
 import React from 'react';
 import { TouchableOpacity } from 'react-native';
 
-export default function HomeLayout() {
+export default function CommonScreensLayout() {
 	return (
 		<Stack
 			screenOptions={{
 				headerTitleStyle: { color: 'white', fontFamily: 'Arial' },
 				headerStyle: { backgroundColor: 'black' },
 				headerTitleAlign: 'center',
+
+				headerLeft: () => (
+					<TouchableOpacity onPress={() => router.back()}>
+						<FontAwesome name="angle-left" size={24} color="white" />
+					</TouchableOpacity>
+				),
 			}}
 		>
-			<Stack.Screen name="index" options={{ title: 'Murmur' }} />
 			<Stack.Screen
-				name="profile"
+				name="index"
 				options={{
-					title: 'Profile',
+					title: 'Murmur Details',
+					headerBackButtonMenuEnabled: true,
 					headerTintColor: 'white',
-					headerLeft: () => (
-						<TouchableOpacity onPress={() => router.back()}>
-							<FontAwesome name="angle-left" size={24} color="white" />
-						</TouchableOpacity>
-					),
 				}}
 			/>
 		</Stack>

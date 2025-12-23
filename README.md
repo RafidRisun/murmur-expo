@@ -61,7 +61,3 @@ Open on emulator, simulator, or Expo Go from the dev server UI.
 ## Contact / Notes for reviewers
 
 If you need any clarification about implementation choices or want me to implement any of the suggested improvements (server-side filtering, Murmur detail screen, or React Query), tell me which and I'll add it.
-
----
-
-Generated for the interview task.
